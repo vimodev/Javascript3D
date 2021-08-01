@@ -24,27 +24,38 @@ async function loop() {
         new Color(0, 0, 1),
         new Color(0, 1, 0),
         new Color(0, 0, 0),
+    ], [
+        
     ])
-    Shader.transformationMatrix = new Matrix4();
-    let rotation = 0;
-    while (true) {
-        Shader.transformationMatrix = Matrix4.createTransformationMatrix(
-            new Vector3(0, 0, 0), 
-            new Vector3(1, 1, 1), 
-            new Vector3(0, 0, rotation)
-            )
-        rotation += 0.01;
-        await new Promise(resolve => setTimeout(resolve, 15))
-        let color = new Color(1, 0, 0);
-        Renderer.draw(model, color);
-        Renderer.swapBuffers();
-    }
-}
 
-function terminate() {
+    Shader.transformationMatrix = new Matrix4();
+    Shader.projectionMatrix = Matrix4.createProjectionMatrix(
+        canvas.width / canvas.height,
+        70,
+        0.1,
+        100
+    );
+
+    let rotation = 0;
+
+    while (true) {
+
+        Shader.transformationMatrix = Matrix4.createTransformationMatrix(
+            new Vector3(0, 0, -5), 
+            new Vector3(1, 1, 1), 
+            new Vector3(rotation, rotation, rotation)
+        )
+
+        rotation += 0.01;
+
+        Renderer.draw(model);
+        Renderer.swapBuffers();
+
+        await new Promise(resolve => setTimeout(resolve, 50))
+
+    }
 
 }
 
 init()
 loop()
-terminate()

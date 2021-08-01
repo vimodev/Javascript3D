@@ -13,9 +13,24 @@ class Matrix4 {
 
     static createTransformationMatrix(translation, scaling, rotation) {
         let M = new Matrix4();
-        M.translate(translation);
+        
         M.scale(scaling);
+        M = M.rotateX(rotation.x);
+        M = M.rotateY(rotation.y);
         M = M.rotateZ(rotation.z);
+        M.translate(translation);
+        return M;
+    }
+
+    static createProjectionMatrix(a, fov, znear, zfar) {
+        let zm = zfar - znear; let zp = zfar + znear;
+        let M = new Matrix4();
+        M.m00 = (1 / Math.tan(fov / 2)) / a;
+        M.m11 = 1 / Math.tan(fov / 2);
+        M.m22 = -zp / zm; 
+        M.m23 = -1;
+        M.m32 = -(2 * zfar * znear) / zm;
+        M.m33 = 0;
         return M;
     }
 
@@ -69,12 +84,25 @@ class Matrix4 {
         return r;
     }
 
+    rotateX(angle) {
+        let M = new Matrix4();
+        M.m11 = Math.cos(angle); M.m21 = Math.sin(angle);
+        M.m12 = -Math.sin(angle); M.m22 = Math.cos(angle);
+        return M.mulMat4(this);
+    }
+
+    rotateY(angle) {
+        let M = new Matrix4();
+        M.m00 = Math.cos(angle); M.m20 = Math.sin(angle);
+        M.m02 = -Math.sin(angle); M.m22 = Math.cos(angle);
+        return M.mulMat4(this);
+    }
+
     rotateZ(angle) {
         let M = new Matrix4();
-        M.m00 = Math.cos(angle); M.m10 = -Math.sin(angle);
-        M.m01 = Math.sin(angle); M.m11 = Math.cos(angle);
-        M.mulMat4(this);
-        return M;
+        M.m00 = Math.cos(angle); M.m10 = Math.sin(angle);
+        M.m01 = -Math.sin(angle); M.m11 = Math.cos(angle);
+        return M.mulMat4(this);
     }
 
 }
