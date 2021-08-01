@@ -42,17 +42,23 @@ class Renderer {
                 let offset = (y * id.width + x) * 4;
                 let data = this.displayBuffer[x][y];
                 if (data == null) continue;
-                px[offset++] = data.r;
-                px[offset++] = data.g;
-                px[offset++] = data.b;
+                px[offset++] = data.r * 255;
+                px[offset++] = data.g * 255;
+                px[offset++] = data.b * 255;
                 px[offset] = 255;
             }
         }
         this.context.putImageData(id, 0, 0);
     }
 
-    static draw(model) {
-
+    static draw(model, color) {
+        let positions = model.positions;
+        for (let i = 0; i < positions.length; i += 3) {
+            let v1 = Shader.vertex(positions[i]);
+            let v2 = Shader.vertex(positions[i + 1]);
+            let v3 = Shader.vertex(positions[i + 2]);
+            this.drawTriangle([v1, v2, v3], [color, color, color]);
+        }
     }
 
     static drawTriangle(positions, colors) {
@@ -81,8 +87,11 @@ class Renderer {
             // Still have to interpolate Z some time
             let listZ = obj.z;
             if (listX.length == 0) continue;
-            listX.sort();
-            let pixels = plotLine(new Vector2(listX[0], y), new Vector2(listX[listX.length - 1], y));
+            let minX = Math.min(...listX);
+            let minI = listX.indexOf(minX);
+            let maxX = Math.max(...listX);
+            let maxI = listX.indexOf(maxX);
+            let pixels = plotLine(new Vector3(minX, y, listZ[minI]), new Vector2(maxX, y, listZ[maxI]));
             for (let i = 0; i < pixels.length; i++) {
                 this.drawPixel(pixels[i], colors[0]);
             }
@@ -92,10 +101,11 @@ class Renderer {
     static positionToPixel(position) {
         let x = Math.floor((position.x + 1) * this.width / 2);
         let y = Math.floor((-position.y + 1) * this.height / 2);
-        return new Vector2(x, y);
+        return new Vector3(x, y, position.z);
     }
 
     static drawPixel(position, color) {
+        if (position.x < 0 || position.x >= this.width || position.y < 0 || position.y >= this.height) return;
         if (this.depthBuffer[position.x][position.y] == null || this.depthBuffer[position.x][position.y] < position.z) {
             this.drawBuffer[position.x][position.y] = new Color(color.r, color.g, color.b);
             this.depthBuffer[position.x][position.y] = position.z;

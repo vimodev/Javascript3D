@@ -1,10 +1,7 @@
 class Model {
 
-    constructor(positions, normals) {
+    constructor(positions) {
         this.positions = positions;
-        this.normals = normals;
-        this.pd = 3;
-        this.nd = 3;
     }
 
 }
