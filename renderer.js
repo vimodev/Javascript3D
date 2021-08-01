@@ -107,7 +107,7 @@ class Renderer {
     }
 
     static drawPixel(position, color) {
-        position.x = +position.x; position.y = +position.y; position.z = +position.z;
+        // position.x = +position.x; position.y = +position.y; position.z = +position.z;
         if (position.x < 0 || position.x >= this.width || position.y < 0 || position.y >= this.height) return;
         if (this.depthBuffer[position.x][position.y] == null || this.depthBuffer[position.x][position.y] < position.z) {
             this.drawBuffer[position.x][position.y] = new Color(color.r, color.g, color.b);

@@ -105,13 +105,15 @@ async function loop() {
 
     while (true) {
 
+        let scale = (Math.sin(rotation) + 1.3) / 2;
+
         Shader.transformationMatrix = Matrix4.createTransformationMatrix(
-            new Vector3(0, 0, -5 + Math.sin(rotation) * 3), 
-            new Vector3(1, 1, 1), 
+            new Vector3(0, 0, -2), 
+            new Vector3(scale, scale, scale), 
             new Vector3(rotation, rotation, rotation)
         )
 
-        rotation += 0.01;
+        rotation += 0.06;
 
         Renderer.draw(cube);
         Renderer.swapBuffers();
