@@ -25,52 +25,16 @@ async function loop() {
     ])
 //(new Array(24)).fill(new Color(0, 0, 0))
     let cube = new Model([
-        new Vector3(-0.5,0.5,-0.5),
-        new Vector3(-0.5,-0.5,-0.5),
-		new Vector3(0.5,-0.5,-0.5),	
-        new Vector3(0.5,0.5,-0.5),		
-				
-        new Vector3(-0.5,0.5,0.5),
-        new Vector3(-0.5,-0.5,0.5),	
-        new Vector3(0.5,-0.5,0.5),	
-        new Vector3(0.5,0.5,0.5),
-				
-        new Vector3(0.5,0.5,-0.5),	
-        new Vector3(0.5,-0.5,-0.5),	
-        new Vector3(0.5,-0.5,0.5),	
-        new Vector3(0.5,0.5,0.5),
-				
-        new Vector3(-0.5,0.5,-0.5),	
-        new Vector3(-0.5,-0.5,-0.5),	
-        new Vector3(-0.5,-0.5,0.5),	
-        new Vector3(-0.5,0.5,0.5),
-				
-        new Vector3(-0.5,0.5,0.5),
-        new Vector3(-0.5,0.5,-0.5),
-        new Vector3(0.5,0.5,-0.5),
-        new Vector3(0.5,0.5,0.5),
-				
-        new Vector3(-0.5,-0.5,0.5),
-        new Vector3(-0.5,-0.5,-0.5),
-        new Vector3(0.5,-0.5,-0.5),
-        new Vector3(0.5,-0.5,0.5)
+        new Vector3(-0.5, 0.5, 0.5),
+        new Vector3(0.5, 0.5, 0.5),
+        new Vector3(-0.5, -0.5, 0.5),
+        new Vector3(0.5, -0.5, 0.5),
+
+        new Vector3(-0.5, 0.5, -0.5),
+        new Vector3(0.5, 0.5, -0.5),
+        new Vector3(-0.5, -0.5, -0.5),
+        new Vector3(0.5, -0.5, -0.5),
     ], [
-        new Color(0, 1, 1),
-        new Color(0.5, 0.5, 0.5),
-        new Color(0, 0, 0.5),
-        new Color(0.75, 0.75, 0.75),
-        new Color(0, 0, 0),
-        new Color(0, 0.5, 0),
-        new Color(0.5, 0.5, 0),
-        new Color(0, 0.5, 0.5),
-        new Color(0, 0, 1),
-        new Color(0, 1, 0),
-        new Color(0.5, 0, 0.5),
-        new Color(1, 0.5, 1),
-        new Color(1, 0, 1),
-        new Color(0.5, 0, 0),
-        new Color(1, 0, 0),
-        new Color(1, 1, 0),
         new Color(0, 0, 1),
         new Color(0, 1, 0),
         new Color(0.5, 0, 0.5),
@@ -80,18 +44,18 @@ async function loop() {
         new Color(1, 0, 0),
         new Color(1, 1, 0)
     ], [
-        0,1,3,	
-		3,1,2,	
-	    4,5,7,
-		7,5,6,
-		8,9,11,
-		11,9,10,
-		12,13,15,
-		15,13,14,	
-		16,17,19,
-		19,17,18,
-		20,21,23,
-		23,21,22
+        0,1,3,
+        0,2,3,
+        1,5,7,
+        1,3,7,
+        4,5,6,
+        5,6,7,
+        0,2,4,
+        2,4,6,
+        2,3,6,
+        3,6,7,
+        0,1,4,
+        1,4,5
     ])
 
     Shader.projectionMatrix = Matrix4.createProjectionMatrix(
