@@ -15,4 +15,8 @@ class Vector4 {
         return new Vector3(this.x / this.w, this.y / this.w, this.x / this.w);
     }
 
+    dot(v) {
+        return this.x * v.x + this.y * v.y + this.z * v.z + this.w * v.w;
+    }
+
 }

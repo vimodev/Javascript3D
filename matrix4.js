@@ -30,6 +30,24 @@ class Matrix4 {
         this.m22 *= scaling.z;
     }
 
+    toColumns() {
+        return [
+            new Vector4(this.m00, this.m01, this.m02, this.m03),
+            new Vector4(this.m10, this.m11, this.m12, this.m13),
+            new Vector4(this.m20, this.m21, this.m22, this.m23),
+            new Vector4(this.m30, this.m31, this.m32, this.m33),
+        ]
+    }
+
+    toRows() {
+        return [
+            new Vector4(this.m00, this.m10, this.m20, this.m30),
+            new Vector4(this.m01, this.m11, this.m21, this.m31),
+            new Vector4(this.m02, this.m12, this.m22, this.m32),
+            new Vector4(this.m03, this.m13, this.m23, this.m33),
+        ]
+    }
+
     mulVec4(v) {
         let result = new Vector4(0, 0, 0, 0);
         result.x = this.m00 * v.x + this.m10 * v.y + this.m20 * v.z + this.m30 * v.w;
@@ -37,6 +55,25 @@ class Matrix4 {
         result.z = this.m02 * v.x + this.m12 * v.y + this.m22 * v.z + this.m32 * v.w;
         result.w = this.m03 * v.x + this.m13 * v.y + this.m23 * v.z + this.m33 * v.w;
         return result;
+    }
+
+    mulMat4(m) {
+        let rows = this.toRows();
+        let cols = m.toColumns();
+        let r = new Matrix4();
+        r.m00 = rows[0].dot(cols[0]); r.m10 = rows[0].dot(cols[1]); r.m20 = rows[0].dot(cols[2]); r.m30 = rows[0].dot(cols[3]);
+        r.m01 = rows[1].dot(cols[0]); r.m11 = rows[1].dot(cols[1]); r.m21 = rows[1].dot(cols[2]); r.m31 = rows[1].dot(cols[3]);
+        r.m02 = rows[2].dot(cols[0]); r.m12 = rows[2].dot(cols[1]); r.m22 = rows[2].dot(cols[2]); r.m32 = rows[2].dot(cols[3]);
+        r.m03 = rows[3].dot(cols[0]); r.m13 = rows[3].dot(cols[1]); r.m23 = rows[3].dot(cols[2]); r.m33 = rows[3].dot(cols[3]);
+        return r;
+    }
+
+    rotateZ(angle) {
+        let M = new Matrix4();
+        M.m00 = Math.cos(angle); M.m10 = -Math.sin(angle);
+        M.m01 = Math.sin(angle); M.m11 = Math.cos(angle);
+        M.mulMat4(this);
+        return M;
     }
 
 }
