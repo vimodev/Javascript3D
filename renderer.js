@@ -51,49 +51,50 @@ class Renderer {
         this.context.putImageData(id, 0, 0);
     }
 
-    static draw(model, color) {
+    static draw(model) {
         let positions = model.positions;
+        let colors = model.colors;
         for (let i = 0; i < positions.length; i += 3) {
-            let v1 = Shader.vertex(positions[i]);
-            let v2 = Shader.vertex(positions[i + 1]);
-            let v3 = Shader.vertex(positions[i + 2]);
-            this.drawTriangle([v1, v2, v3], [color, color, color]);
+            let v1 = Shader.vertex(positions[i], colors[i]);
+            let v2 = Shader.vertex(positions[i + 1], colors[i + 1]);
+            let v3 = Shader.vertex(positions[i + 2], colors[i + 2]);
+            this.drawTriangle([v1, v2, v3]);
         }
     }
 
-    static drawTriangle(positions, colors) {
-        let p1 = this.positionToPixel(positions[0]);
-        let p2 = this.positionToPixel(positions[1]);
-        let p3 = this.positionToPixel(positions[2]);
-        this.drawPixel(p1, colors[0]);
-        this.drawPixel(p2, colors[1]);
-        this.drawPixel(p3, colors[2]);
-        let lines = plotLine(p1, p2);
-        lines = lines.concat(plotLine(p1, p3));
-        lines = lines.concat(plotLine(p2, p3));
+    static drawTriangle(vertices) {
+        let p1 = this.positionToPixel(vertices[0].position);
+        let p2 = this.positionToPixel(vertices[1].position);
+        let p3 = this.positionToPixel(vertices[2].position);
+        this.drawPixel(p1, vertices[0].color);
+        this.drawPixel(p2, vertices[1].color);
+        this.drawPixel(p3, vertices[2].color);
+        let lines = this.interpolate(plotLine(p1, p2), vertices[0], vertices[1]);
+        lines = lines.concat(this.interpolate(plotLine(p1, p3), vertices[0], vertices[2]));
+        lines = lines.concat(this.interpolate(plotLine(p2, p3), vertices[1], vertices[2]));
         let scanLines = {};
         for (let i = 0; i < lines.length; i++) {
-            this.drawPixel(lines[i], colors[0]);
-            let y = lines[i].y;
+            this.drawPixel(lines[i].pixel, Shader.pixel(lines[i].position, lines[i].color));
+            let y = lines[i].pixel.y;
             if (scanLines[y] == undefined) {
-                scanLines[y] = {x: [], z: []};
+                scanLines[y] = {x: [], pixels: []};
             }
-            (scanLines[y].x).push(lines[i].x);
-            (scanLines[y].z).push(lines[i].z);
+            (scanLines[y].x).push(lines[i].pixel.x);
+            (scanLines[y].pixels).push(lines[i]);
         }
         if (!this.fill) return;
         for (const [y, obj] of Object.entries(scanLines)) {
+            if (obj.x.length == 0) continue;
             let listX = obj.x;
-            // Still have to interpolate Z some time
-            let listZ = obj.z;
-            if (listX.length == 0) continue;
             let minX = Math.min(...listX);
             let minI = listX.indexOf(minX);
             let maxX = Math.max(...listX);
             let maxI = listX.indexOf(maxX);
+            let listZ = obj.pixels.map(px => px.position.z);
             let pixels = plotLine(new Vector3(minX, y, listZ[minI]), new Vector2(maxX, y, listZ[maxI]));
+            pixels = this.interpolate(pixels, obj.pixels[minI], obj.pixels[maxI]);
             for (let i = 0; i < pixels.length; i++) {
-                this.drawPixel(pixels[i], colors[0]);
+                this.drawPixel(pixels[i].pixel, Shader.pixel(pixels[i].position, pixels[i].color));
             }
         }
     }
@@ -105,6 +106,7 @@ class Renderer {
     }
 
     static drawPixel(position, color) {
+        position.x = +position.x; position.y = +position.y; position.z = +position.z;
         if (position.x < 0 || position.x >= this.width || position.y < 0 || position.y >= this.height) return;
         if (this.depthBuffer[position.x][position.y] == null || this.depthBuffer[position.x][position.y] < position.z) {
             this.drawBuffer[position.x][position.y] = new Color(color.r, color.g, color.b);
@@ -121,6 +123,32 @@ class Renderer {
             this.drawBuffer[i] = new Array(this.height);
             this.depthBuffer[i] = new Array(this.height);
         }
+    }
+
+    static interpolate(pixels, v1, v2) {
+        let n = pixels.length;
+        let result = new Array(n);
+        for (let i = 0; i < n; i++) {
+            let mix = i / n;
+            result[i] = {
+                pixel: pixels[i],
+                position: new Vector3(
+                    this.linearlyInterpolate(v1.position.x, v2.position.x, mix),
+                    this.linearlyInterpolate(v1.position.y, v2.position.y, mix),
+                    this.linearlyInterpolate(v1.position.z, v2.position.z, mix),
+                ),
+                color: new Color(
+                    this.linearlyInterpolate(v1.color.r, v2.color.r, mix),
+                    this.linearlyInterpolate(v1.color.g, v2.color.g, mix),
+                    this.linearlyInterpolate(v1.color.b, v2.color.b, mix),
+                )
+            };
+        }
+        return result;
+    }
+
+    static linearlyInterpolate(value1, value2, mix) {
+        return (1 - mix) * value1 + mix * value2;
     }
 
 }

@@ -1,7 +1,8 @@
 class Model {
 
-    constructor(positions) {
+    constructor(positions, colors) {
         this.positions = positions;
+        this.colors = colors;
     }
 
 }

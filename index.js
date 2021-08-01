@@ -17,6 +17,13 @@ async function loop() {
         new Vector3(0.5, 0.5, 0),
         new Vector3(-0.5, -0.5, 0),
         new Vector3(0.5, -0.5, 0),
+    ], [
+        new Color(1, 0, 0),
+        new Color(0, 1, 0),
+        new Color(0, 0, 1),
+        new Color(0, 0, 1),
+        new Color(0, 1, 0),
+        new Color(0, 0, 0),
     ])
     Shader.transformationMatrix = new Matrix4();
     let i = 0;
@@ -26,8 +33,6 @@ async function loop() {
         Shader.transformationMatrix.translate(new Vector3(tr, tr, 0));
         i += 0.1;
         await new Promise(resolve => setTimeout(resolve, 30))
-        // Renderer.drawTriangle([new Vector3(-0.5, -0.5, 0), new Vector3(0, 0.5, 0), new Vector3(0.5, -0.5, 0)],
-        //                         [new Color(0, 0, 0), new Color(0, 0, 0), new Color(0, 0, 0)])
         let color = new Color(1, 0, 0);
         Renderer.draw(model, color);
         Renderer.swapBuffers();
