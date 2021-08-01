@@ -1,6 +1,6 @@
 class Renderer {
 
-    static fill = true;
+    static fill = false;
 
     static canvas;
     static context;
