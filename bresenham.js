@@ -61,13 +61,13 @@ function plotLineHigh(p0, p1) {
 function plotLine(p0, p1) {
     if (Math.abs(p1.y - p0.y) < Math.abs(p1.x - p0.x)) {
         if (p0.x > p1.x) {
-            return plotLineLow(p1, p0);
+            return plotLineLow(p1, p0).reverse();
         } else {
             return plotLineLow(p0, p1);
         }
     } else {
         if (p0.y > p1.y) {
-            return plotLineHigh(p1, p0);
+            return plotLineHigh(p1, p0).reverse();
         } else {
             return plotLineHigh(p0, p1);
         }

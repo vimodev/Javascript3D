@@ -11,10 +11,11 @@ class Matrix4 {
         this.m03 = 0; this.m13 = 0; this.m23 = 0; this.m33 = 1;
     }
 
-    static createTransformationMatrix(translation, scaling) {
+    static createTransformationMatrix(translation, scaling, rotation) {
         let M = new Matrix4();
         M.translate(translation);
         M.scale(scaling);
+        M = M.rotateZ(rotation.z);
         return M;
     }
 

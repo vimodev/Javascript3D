@@ -4,8 +4,8 @@ let context;
 function init() {
     canvas = document.getElementById('canvas');
     ctx = canvas.getContext('2d');
-    canvas.width = 50;//window.innerWidth;
-    canvas.height = 50;//window.innerHeight;
+    canvas.width = 200;// window.innerWidth;
+    canvas.height = 200;//window.innerHeight;
     Renderer.init(canvas, ctx);
 }
 
@@ -26,13 +26,15 @@ async function loop() {
         new Color(0, 0, 0),
     ])
     Shader.transformationMatrix = new Matrix4();
-    let i = 0;
+    let rotation = 0;
     while (true) {
-        Shader.transformationMatrix = Shader.transformationMatrix.rotateZ(i);
-        let tr = Math.sin(2 * i) * 0.15;
-        Shader.transformationMatrix.translate(new Vector3(tr, tr, 0));
-        i += 0.1;
-        await new Promise(resolve => setTimeout(resolve, 30))
+        Shader.transformationMatrix = Matrix4.createTransformationMatrix(
+            new Vector3(0, 0, 0), 
+            new Vector3(1, 1, 1), 
+            new Vector3(0, 0, rotation)
+            )
+        rotation += 0.01;
+        await new Promise(resolve => setTimeout(resolve, 15))
         let color = new Color(1, 0, 0);
         Renderer.draw(model, color);
         Renderer.swapBuffers();

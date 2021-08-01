@@ -70,8 +70,8 @@ class Renderer {
         this.drawPixel(p2, vertices[1].color);
         this.drawPixel(p3, vertices[2].color);
         let lines = this.interpolate(plotLine(p1, p2), vertices[0], vertices[1]);
-        lines = lines.concat(this.interpolate(plotLine(p1, p3), vertices[0], vertices[2]));
         lines = lines.concat(this.interpolate(plotLine(p2, p3), vertices[1], vertices[2]));
+        lines = lines.concat(this.interpolate(plotLine(p3, p1), vertices[2], vertices[0]));
         let scanLines = {};
         for (let i = 0; i < lines.length; i++) {
             this.drawPixel(lines[i].pixel, Shader.pixel(lines[i].position, lines[i].color));
@@ -91,7 +91,7 @@ class Renderer {
             let maxX = Math.max(...listX);
             let maxI = listX.indexOf(maxX);
             let listZ = obj.pixels.map(px => px.position.z);
-            let pixels = plotLine(new Vector3(minX, y, listZ[minI]), new Vector2(maxX, y, listZ[maxI]));
+            let pixels = plotLine(new Vector3(minX, y, listZ[minI]), new Vector3(maxX, y, listZ[maxI]));
             pixels = this.interpolate(pixels, obj.pixels[minI], obj.pixels[maxI]);
             for (let i = 0; i < pixels.length; i++) {
                 this.drawPixel(pixels[i].pixel, Shader.pixel(pixels[i].position, pixels[i].color));
