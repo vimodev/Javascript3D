@@ -54,10 +54,11 @@ class Renderer {
     static draw(model) {
         let positions = model.positions;
         let colors = model.colors;
-        for (let i = 0; i < positions.length; i += 3) {
-            let v1 = Shader.vertex(positions[i], colors[i]);
-            let v2 = Shader.vertex(positions[i + 1], colors[i + 1]);
-            let v3 = Shader.vertex(positions[i + 2], colors[i + 2]);
+        let indices = model.indices;
+        for (let i = 0; i < indices.length; i += 3) {
+            let v1 = Shader.vertex(positions[indices[i]], colors[indices[i]]);
+            let v2 = Shader.vertex(positions[indices[i + 1]], colors[indices[i + 1]]);
+            let v3 = Shader.vertex(positions[indices[i + 2]], colors[indices[i + 2]]);
             this.drawTriangle([v1, v2, v3]);
         }
     }

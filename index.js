@@ -14,21 +14,16 @@ async function loop() {
         new Vector3(-0.5, 0.5, 0),
         new Vector3(-0.5, -0.5, 0),
         new Vector3(0.5, 0.5, 0),
-        new Vector3(0.5, 0.5, 0),
-        new Vector3(-0.5, -0.5, 0),
         new Vector3(0.5, -0.5, 0),
     ], [
         new Color(1, 0, 0),
         new Color(0, 1, 0),
         new Color(0, 0, 1),
-        new Color(0, 0, 1),
-        new Color(0, 1, 0),
         new Color(0, 0, 0),
     ], [
-        
+        0, 1, 2, 2, 1, 3
     ])
 
-    Shader.transformationMatrix = new Matrix4();
     Shader.projectionMatrix = Matrix4.createProjectionMatrix(
         canvas.width / canvas.height,
         70,
