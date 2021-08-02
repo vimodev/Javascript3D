@@ -98,6 +98,7 @@ class Renderer {
         let p1 = this.positionToPixel(vertices[0].position);
         let p2 = this.positionToPixel(vertices[1].position);
         let p3 = this.positionToPixel(vertices[2].position);
+        if (!this.triangleWithinBounds(p1, p2, p3)) return;
         // Draw them
         this.drawPixel(p1, Shader.pixel(vertices[0].position, vertices[0].color));
         this.drawPixel(p2, Shader.pixel(vertices[1].position, vertices[1].color));
@@ -226,6 +227,14 @@ class Renderer {
 
     static withinBounds(x, y) {
         return x >= 0 && x < this.width && y >= 0 && y < this.height
+    }
+
+    static triangleWithinBounds(p1, p2, p3) {
+        if (p1.x < 0 && p2.x < 0 && p3.x < 0) return false;
+        if (p1.y < 0 && p2.y < 0 && p3.y < 0) return false;
+        if (p1.x >= this.width && p2.x >= this.width && p3.x >= this.width) return false;
+        if (p1.y >= this.height && p2.y >= this.height && p3.y >= this.height) return false;
+        return true;
     }
 
 }

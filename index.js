@@ -108,6 +108,8 @@ async function loop() {
         )
         Renderer.draw(cube);
 
+        //console.log(Renderer.drawCalls)
+
         // Swap the draw and display buffers
         Renderer.swapBuffers();
 
