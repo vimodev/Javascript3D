@@ -4,8 +4,8 @@ let context;
 function init() {
     canvas = document.getElementById('canvas');
     ctx = canvas.getContext('2d');
-    canvas.width = 200;// window.innerWidth;
-    canvas.height = 200;//window.innerHeight;
+    canvas.width = 100;// window.innerWidth;
+    canvas.height = 100;//window.innerHeight;
     Renderer.init(canvas, ctx);
 }
 
@@ -60,12 +60,12 @@ async function loop() {
 
     Shader.projectionMatrix = Matrix4.createProjectionMatrix(
         canvas.width / canvas.height,
-        70,
+        60,
         0.1,
         100
     );
 
-    let rotation = 0;
+    let rotation = 0.05;
 
     while (true) {
 
@@ -73,7 +73,7 @@ async function loop() {
 
         Shader.transformationMatrix = Matrix4.createTransformationMatrix(
             new Vector3(0, 0, -2), 
-            new Vector3(scale, scale, scale), 
+            new Vector3(1, 1, 1), 
             new Vector3(rotation, rotation, rotation)
         )
 

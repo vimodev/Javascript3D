@@ -12,7 +12,7 @@ class Vector4 {
     }
 
     toVec3() {
-        return new Vector3(this.x / this.w, this.y / this.w, this.x / this.w);
+        return new Vector3(this.x / this.w, this.y / this.w, this.z / this.w);
     }
 
     dot(v) {

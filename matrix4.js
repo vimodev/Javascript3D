@@ -23,13 +23,13 @@ class Matrix4 {
     }
 
     static createProjectionMatrix(a, fov, znear, zfar) {
-        let zm = zfar - znear; let zp = zfar + znear;
         let M = new Matrix4();
-        M.m00 = (1 / Math.tan(fov / 2)) / a;
-        M.m11 = 1 / Math.tan(fov / 2);
-        M.m22 = -zp / zm; 
+        let sc = 1 / Math.tan(((fov / 180) * Math.PI) / 2);
+        M.m00 = sc;
+        M.m11 = sc;
+        M.m22 = -zfar / (zfar - znear); 
         M.m23 = -1;
-        M.m32 = -(2 * zfar * znear) / zm;
+        M.m32 = -zfar * znear / (zfar - znear);
         M.m33 = 0;
         return M;
     }

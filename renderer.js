@@ -1,6 +1,6 @@
 class Renderer {
 
-    static fill = false;
+    static fill = true;
 
     static canvas;
     static context;
@@ -9,6 +9,8 @@ class Renderer {
     static displayBuffer;
     static drawBuffer;
     static depthBuffer;
+
+    static tracker = {}
 
     static init(canvas, ctx) {
         this.canvas = canvas;
@@ -75,6 +77,7 @@ class Renderer {
         lines = lines.concat(this.interpolate(plotLine(p3, p1), vertices[2], vertices[0]));
         let scanLines = {};
         for (let i = 0; i < lines.length; i++) {
+            lines[i].pixel.z = lines[i].position.z;
             this.drawPixel(lines[i].pixel, Shader.pixel(lines[i].position, lines[i].color));
             let y = lines[i].pixel.y;
             if (scanLines[y] == undefined) {
@@ -85,7 +88,7 @@ class Renderer {
         }
         if (!this.fill) return;
         for (const [y, obj] of Object.entries(scanLines)) {
-            if (obj.x.length == 0) continue;
+            if (obj.x.length <= 1) continue;
             let listX = obj.x;
             let minX = Math.min(...listX);
             let minI = listX.indexOf(minX);
@@ -107,9 +110,8 @@ class Renderer {
     }
 
     static drawPixel(position, color) {
-        // position.x = +position.x; position.y = +position.y; position.z = +position.z;
         if (position.x < 0 || position.x >= this.width || position.y < 0 || position.y >= this.height) return;
-        if (this.depthBuffer[position.x][position.y] == null || this.depthBuffer[position.x][position.y] < position.z) {
+        if (this.depthBuffer[position.x][position.y] == null || this.depthBuffer[position.x][position.y] >= position.z) {
             this.drawBuffer[position.x][position.y] = new Color(color.r, color.g, color.b);
             this.depthBuffer[position.x][position.y] = position.z;
         }
