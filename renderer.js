@@ -10,6 +10,8 @@ class Renderer {
     static drawBuffer;
     static depthBuffer;
 
+    static drawCalls = 0;
+
     /**
      * Initialize the renderer
      * @param {*} canvas 
@@ -39,6 +41,7 @@ class Renderer {
      * Set the draw and depth buffers to null
      */
     static clearDrawBuffer() {
+        this.drawCalls = 0;
         for (let i = 0; i < this.width; i++) {
             this.drawBuffer[i] = new Array(this.height);
             this.depthBuffer[i] = new Array(this.height);
@@ -131,6 +134,7 @@ class Renderer {
             let listZ = obj.pixels.map(px => px.position.z);
             // Plot the horizontal line
             let pixels = plotLine(new Vector3(minX, y, listZ[minI]), new Vector3(maxX, y, listZ[maxI]));
+            pixels = pixels.filter(px => this.withinBounds(px.x, px.y));
             // Interpolate all the values for the shader
             pixels = this.interpolate(pixels, obj.pixels[minI], obj.pixels[maxI]);
             // Draw them all after applying pixel shader
@@ -158,7 +162,8 @@ class Renderer {
      * @returns 
      */
     static drawPixel(position, color) {
-        if (position.x < 0 || position.x >= this.width || position.y < 0 || position.y >= this.height) return;
+        this.drawCalls++;
+        if (!this.withinBounds(position.x, position.y)) return;
         if (this.depthBuffer[position.x][position.y] == null || this.depthBuffer[position.x][position.y] >= position.z) {
             this.drawBuffer[position.x][position.y] = new Color(color.r, color.g, color.b);
             this.depthBuffer[position.x][position.y] = position.z;
@@ -217,6 +222,10 @@ class Renderer {
      */
     static linearlyInterpolate(value1, value2, mix) {
         return (1 - mix) * value1 + mix * value2;
+    }
+
+    static withinBounds(x, y) {
+        return x >= 0 && x < this.width && y >= 0 && y < this.height
     }
 
 }
