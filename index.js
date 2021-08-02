@@ -10,8 +10,8 @@ let frame_start;
 function init() {
     canvas = document.getElementById('canvas');
     ctx = canvas.getContext('2d');
-    canvas.width = 350;// window.innerWidth;
-    canvas.height = 350;//window.innerHeight;
+    canvas.width = 200;// window.innerWidth;
+    canvas.height = 200;//window.innerHeight;
     Renderer.init(canvas, ctx);
 }
 
@@ -83,7 +83,7 @@ async function loop() {
         frame_start = Date.now();
 
         // Transform the cube in the shader
-        let scale = (Math.sin(rotation) + 1.3) / 2;
+        let scale = (Math.sin(rotation / 4) + 1.3) / 2;
         Shader.transformationMatrix = Matrix4.createTransformationMatrix(
             new Vector3(0, 0, -2), 
             new Vector3(scale, scale, scale), 
@@ -93,12 +93,27 @@ async function loop() {
 
         // Draw to the draw buffer the given model
         Renderer.draw(cube);
+
+        Shader.transformationMatrix = Matrix4.createTransformationMatrix(
+            new Vector3(1, 0, -4), 
+            new Vector3(scale, scale, scale), 
+            new Vector3(-rotation, rotation, -rotation)
+        )
+        Renderer.draw(cube);
+
+        Shader.transformationMatrix = Matrix4.createTransformationMatrix(
+            new Vector3(-4, 0, -10), 
+            new Vector3(scale, scale, scale), 
+            new Vector3(-rotation, -rotation, rotation)
+        )
+        Renderer.draw(cube);
+
         // Swap the draw and display buffers
         Renderer.swapBuffers();
 
         // Try to hit TARGET_FPS fps
         let dt = Date.now() - frame_start;
-        await new Promise(resolve => setTimeout(resolve, Math.max(1, (1 / TARGET_FPS) - dt)))
+        await new Promise(resolve => setTimeout(resolve, Math.max(0, (1 / TARGET_FPS) - dt)))
 
     }
 
