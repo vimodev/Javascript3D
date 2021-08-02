@@ -1,15 +1,25 @@
 let canvas;
 let context;
 
+let TARGET_FPS = 30;
+let frame_start;
+
+/**
+ * Initialize the graphics pipeline
+ */
 function init() {
     canvas = document.getElementById('canvas');
     ctx = canvas.getContext('2d');
-    canvas.width = 100;// window.innerWidth;
-    canvas.height = 100;//window.innerHeight;
+    canvas.width = 350;// window.innerWidth;
+    canvas.height = 350;//window.innerHeight;
     Renderer.init(canvas, ctx);
 }
 
+/**
+ * Main frame loop
+ */
 async function loop() {
+    // A plane model
     let model = new Model([
         new Vector3(-0.5, 0.5, 0),
         new Vector3(-0.5, -0.5, 0),
@@ -23,7 +33,7 @@ async function loop() {
     ], [
         0, 1, 2, 2, 1, 3
     ])
-//(new Array(24)).fill(new Color(0, 0, 0))
+    // A cube model
     let cube = new Model([
         new Vector3(-0.5, 0.5, 0.5),
         new Vector3(0.5, 0.5, 0.5),
@@ -58,6 +68,7 @@ async function loop() {
         1,4,5
     ])
 
+    // set the projection matrix in the shaders
     Shader.projectionMatrix = Matrix4.createProjectionMatrix(
         canvas.width / canvas.height,
         60,
@@ -69,20 +80,25 @@ async function loop() {
 
     while (true) {
 
-        let scale = (Math.sin(rotation) + 1.3) / 2;
+        frame_start = Date.now();
 
+        // Transform the cube in the shader
+        let scale = (Math.sin(rotation) + 1.3) / 2;
         Shader.transformationMatrix = Matrix4.createTransformationMatrix(
             new Vector3(0, 0, -2), 
-            new Vector3(1, 1, 1), 
+            new Vector3(scale, scale, scale), 
             new Vector3(rotation, rotation, rotation)
         )
-
         rotation += 0.06;
 
+        // Draw to the draw buffer the given model
         Renderer.draw(cube);
+        // Swap the draw and display buffers
         Renderer.swapBuffers();
 
-        await new Promise(resolve => setTimeout(resolve, 50))
+        // Try to hit TARGET_FPS fps
+        let dt = Date.now() - frame_start;
+        await new Promise(resolve => setTimeout(resolve, Math.max(1, (1 / TARGET_FPS) - dt)))
 
     }
 

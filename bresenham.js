@@ -1,3 +1,9 @@
+/**
+ * Fetch pixelated line if gradient < 1
+ * @param {*} p0 
+ * @param {*} p1 
+ * @returns 
+ */
 function plotLineLow(p0, p1) {
     let x0 = p0.x; let y0 = p0.y;
     let x1 = p1.x; let y1 = p1.y;
@@ -28,6 +34,12 @@ function plotLineLow(p0, p1) {
     return result;
 }
 
+/**
+ * Fetch pixelated line if gradient > 1
+ * @param {*} p0 
+ * @param {*} p1 
+ * @returns 
+ */
 function plotLineHigh(p0, p1) {
     let x0 = p0.x; let y0 = p0.y;
     let x1 = p1.x; let y1 = p1.y;
@@ -58,6 +70,12 @@ function plotLineHigh(p0, p1) {
     return result;
 }
 
+/**
+ * Get a pixel line for any two pixel points
+ * @param {*} p0 
+ * @param {*} p1 
+ * @returns 
+ */
 function plotLine(p0, p1) {
     if (Math.abs(p1.y - p0.y) < Math.abs(p1.x - p0.x)) {
         if (p0.x > p1.x) {

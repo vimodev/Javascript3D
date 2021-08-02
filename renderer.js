@@ -10,8 +10,11 @@ class Renderer {
     static drawBuffer;
     static depthBuffer;
 
-    static tracker = {}
-
+    /**
+     * Initialize the renderer
+     * @param {*} canvas 
+     * @param {*} ctx 
+     */
     static init(canvas, ctx) {
         this.canvas = canvas;
         this.context = ctx;
@@ -20,6 +23,10 @@ class Renderer {
         this.initializeBuffers();
     }
 
+    /**
+     * Swap the display and draw buffers.
+     * Clear the draw buffer and display the display buffer.
+     */
     static swapBuffers() {
         let temp = this.displayBuffer;
         this.displayBuffer = this.drawBuffer;
@@ -28,6 +35,9 @@ class Renderer {
         this.drawDisplay()
     }
 
+    /**
+     * Set the draw and depth buffers to null
+     */
     static clearDrawBuffer() {
         for (let i = 0; i < this.width; i++) {
             this.drawBuffer[i] = new Array(this.height);
@@ -35,7 +45,11 @@ class Renderer {
         }
     }
 
+    /**
+     * Draw the content of the display buffer to the screen
+     */
     static drawDisplay() {
+        // Clear the canvas
         this.context.clearRect(0, 0, this.width, this.height);
         let id = this.context.getImageData(0, 0, this.width, this.height);
         let px = id.data;
@@ -53,11 +67,17 @@ class Renderer {
         this.context.putImageData(id, 0, 0);
     }
 
+    /**
+     * Draw the given model to the draw buffer
+     * @param {*} model 
+     */
     static draw(model) {
         let positions = model.positions;
         let colors = model.colors;
         let indices = model.indices;
+        // Draw each triangle
         for (let i = 0; i < indices.length; i += 3) {
+            // But first pass vertices through vertex shader
             let v1 = Shader.vertex(positions[indices[i]], colors[indices[i]]);
             let v2 = Shader.vertex(positions[indices[i + 1]], colors[indices[i + 1]]);
             let v3 = Shader.vertex(positions[indices[i + 2]], colors[indices[i + 2]]);
@@ -65,20 +85,31 @@ class Renderer {
         }
     }
 
+    /**
+     * Draw the given triangle
+     * @param {} vertices 
+     * @returns 
+     */
     static drawTriangle(vertices) {
+        // Get vertices' screen pixel position
         let p1 = this.positionToPixel(vertices[0].position);
         let p2 = this.positionToPixel(vertices[1].position);
         let p3 = this.positionToPixel(vertices[2].position);
-        this.drawPixel(p1, vertices[0].color);
-        this.drawPixel(p2, vertices[1].color);
-        this.drawPixel(p3, vertices[2].color);
+        // Draw them
+        this.drawPixel(p1, Shader.pixel(vertices[0].position, vertices[0].color));
+        this.drawPixel(p2, Shader.pixel(vertices[1].position, vertices[1].color));
+        this.drawPixel(p3, Shader.pixel(vertices[2].position, vertices[2].color));
+        // Using Bresenham, calculate pixels on the 3 lines of the triangle
         let lines = this.interpolate(plotLine(p1, p2), vertices[0], vertices[1]);
         lines = lines.concat(this.interpolate(plotLine(p2, p3), vertices[1], vertices[2]));
         lines = lines.concat(this.interpolate(plotLine(p3, p1), vertices[2], vertices[0]));
+        // Draw these lines, and also calculate the filling scanlines for filling the face
         let scanLines = {};
         for (let i = 0; i < lines.length; i++) {
             lines[i].pixel.z = lines[i].position.z;
+            // Draw the line pixel, after passing it through the shader
             this.drawPixel(lines[i].pixel, Shader.pixel(lines[i].position, lines[i].color));
+            // Scanline: Sort all drawn pixels from the lines by pixel-y coordinate
             let y = lines[i].pixel.y;
             if (scanLines[y] == undefined) {
                 scanLines[y] = {x: [], pixels: []};
@@ -86,29 +117,46 @@ class Renderer {
             (scanLines[y].x).push(lines[i].pixel.x);
             (scanLines[y].pixels).push(lines[i]);
         }
+        // If wireframe mode, we are done
         if (!this.fill) return;
+        // Now fill all horizontal lines of the triangle's face
         for (const [y, obj] of Object.entries(scanLines)) {
             if (obj.x.length <= 1) continue;
+            // Find out the first and last pixel on the line
             let listX = obj.x;
             let minX = Math.min(...listX);
             let minI = listX.indexOf(minX);
             let maxX = Math.max(...listX);
             let maxI = listX.indexOf(maxX);
             let listZ = obj.pixels.map(px => px.position.z);
+            // Plot the horizontal line
             let pixels = plotLine(new Vector3(minX, y, listZ[minI]), new Vector3(maxX, y, listZ[maxI]));
+            // Interpolate all the values for the shader
             pixels = this.interpolate(pixels, obj.pixels[minI], obj.pixels[maxI]);
+            // Draw them all after applying pixel shader
             for (let i = 0; i < pixels.length; i++) {
                 this.drawPixel(pixels[i].pixel, Shader.pixel(pixels[i].position, pixels[i].color));
             }
         }
     }
 
+    /**
+     * Given camera position, get pixel coordinate
+     * @param {*} position 
+     * @returns 
+     */
     static positionToPixel(position) {
         let x = Math.floor((position.x + 1) * this.width / 2);
         let y = Math.floor((-position.y + 1) * this.height / 2);
         return new Vector3(x, y, position.z);
     }
 
+    /**
+     * Draw the given pixel to the drawbuffer
+     * @param {*} position 
+     * @param {*} color 
+     * @returns 
+     */
     static drawPixel(position, color) {
         if (position.x < 0 || position.x >= this.width || position.y < 0 || position.y >= this.height) return;
         if (this.depthBuffer[position.x][position.y] == null || this.depthBuffer[position.x][position.y] >= position.z) {
@@ -117,6 +165,9 @@ class Renderer {
         }
     }
 
+    /**
+     * Initialize all the buffers
+     */
     static initializeBuffers() {
         this.displayBuffer = new Array(this.width);
         this.drawBuffer = new Array(this.width);
@@ -128,6 +179,13 @@ class Renderer {
         }
     }
 
+    /**
+     * Interpolate the given pixel
+     * @param {*} pixels 
+     * @param {*} v1 
+     * @param {*} v2 
+     * @returns 
+     */
     static interpolate(pixels, v1, v2) {
         let n = pixels.length;
         let result = new Array(n);
@@ -150,6 +208,13 @@ class Renderer {
         return result;
     }
 
+    /**
+     * Linearly interpolate 2 values based on mix
+     * @param {*} value1 
+     * @param {*} value2 
+     * @param {*} mix 
+     * @returns 
+     */
     static linearlyInterpolate(value1, value2, mix) {
         return (1 - mix) * value1 + mix * value2;
     }
