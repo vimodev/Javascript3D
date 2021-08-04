@@ -100,9 +100,9 @@ class Renderer {
         let p3 = this.positionToPixel(vertices[2].position);
         if (!this.triangleWithinBounds(p1, p2, p3)) return;
         // Draw them
-        this.drawPixel(p1, Shader.pixel(vertices[0].position, vertices[0].color));
-        this.drawPixel(p2, Shader.pixel(vertices[1].position, vertices[1].color));
-        this.drawPixel(p3, Shader.pixel(vertices[2].position, vertices[2].color));
+        this.drawPixel(p1, Shader.pixel(vertices[0]));
+        this.drawPixel(p2, Shader.pixel(vertices[1]));
+        this.drawPixel(p3, Shader.pixel(vertices[2]));
         // Using Bresenham, calculate pixels on the 3 lines of the triangle
         let lines = this.interpolate(plotLine(p1, p2), vertices[0], vertices[1]);
         lines = lines.concat(this.interpolate(plotLine(p2, p3), vertices[1], vertices[2]));
@@ -112,7 +112,7 @@ class Renderer {
         for (let i = 0; i < lines.length; i++) {
             lines[i].pixel.z = lines[i].position.z;
             // Draw the line pixel, after passing it through the shader
-            this.drawPixel(lines[i].pixel, Shader.pixel(lines[i].position, lines[i].color));
+            this.drawPixel(lines[i].pixel, Shader.pixel(lines[i]));
             // Scanline: Sort all drawn pixels from the lines by pixel-y coordinate
             let y = lines[i].pixel.y;
             if (scanLines[y] == undefined) {
@@ -140,7 +140,7 @@ class Renderer {
             pixels = this.interpolate(pixels, obj.pixels[minI], obj.pixels[maxI]);
             // Draw them all after applying pixel shader
             for (let i = 0; i < pixels.length; i++) {
-                this.drawPixel(pixels[i].pixel, Shader.pixel(pixels[i].position, pixels[i].color));
+                this.drawPixel(pixels[i].pixel, Shader.pixel(pixels[i]));
             }
         }
     }
@@ -208,6 +208,11 @@ class Renderer {
                     this.linearlyInterpolate(v1.color.r, v2.color.r, mix),
                     this.linearlyInterpolate(v1.color.g, v2.color.g, mix),
                     this.linearlyInterpolate(v1.color.b, v2.color.b, mix),
+                ),
+                worldPosition: new Vector3(
+                    this.linearlyInterpolate(v1.worldPosition.x, v2.worldPosition.x, mix),
+                    this.linearlyInterpolate(v1.worldPosition.y, v2.worldPosition.y, mix),
+                    this.linearlyInterpolate(v1.worldPosition.z, v2.worldPosition.z, mix)
                 )
             };
         }
